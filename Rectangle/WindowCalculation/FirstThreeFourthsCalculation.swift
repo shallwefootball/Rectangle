@@ -3,19 +3,18 @@
 import Foundation
 
 class FirstThreeFourthsCalculation: WindowCalculation, OrientationAware {
+    /// Personal patch: two thirds of the width at full height, pinned just right of
+    /// the SessionBoard panel (plain left two thirds when the board isn't on this screen).
+    /// landscapeRect/portraitRect are left as-is because other calculations call them.
     override func calculateRect(_ params: RectCalculationParameters) -> RectResult {
         let visibleFrameOfScreen = params.visibleFrameOfScreen
-        
-        guard Defaults.subsequentExecutionMode.value != .none,
-              let last = params.lastAction, let lastSubAction = last.subAction else {
-            return orientationBasedRect(visibleFrameOfScreen)
+        var rect = visibleFrameOfScreen
+        rect.size.width = floor(visibleFrameOfScreen.width * 2 / 3.0)
+        if let board = sessionBoardFrame(on: visibleFrameOfScreen) {
+            rect.origin.x = board.maxX + sessionBoardGap
+            rect.size.width = min(rect.width, visibleFrameOfScreen.maxX - rect.origin.x)
         }
-        
-        if lastSubAction == .leftThreeFourths || lastSubAction == .topThreeFourths {
-            return WindowCalculationFactory.lastThreeFourthsCalculation.orientationBasedRect(visibleFrameOfScreen)
-        }
-        
-        return orientationBasedRect(visibleFrameOfScreen)
+        return RectResult(rect, subAction: .leftThreeFourths)
     }
     
     func landscapeRect(_ visibleFrameOfScreen: CGRect) -> RectResult {
