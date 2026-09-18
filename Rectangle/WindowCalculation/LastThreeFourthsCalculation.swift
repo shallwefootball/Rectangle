@@ -20,6 +20,9 @@ class LastThreeFourthsCalculation: WindowCalculation, OrientationAware {
     }
     
     func landscapeRect(_ visibleFrameOfScreen: CGRect) -> RectResult {
+        if let rect = rectBesideSessionBoard(visibleFrameOfScreen) {
+            return RectResult(rect, subAction: .rightThreeFourths)
+        }
         var rect = visibleFrameOfScreen
         rect.size.width = floor(visibleFrameOfScreen.width * 7 / 8.0)
         rect.origin.x = visibleFrameOfScreen.minX + visibleFrameOfScreen.width - rect.width
@@ -27,8 +30,37 @@ class LastThreeFourthsCalculation: WindowCalculation, OrientationAware {
     }
     
     func portraitRect(_ visibleFrameOfScreen: CGRect) -> RectResult {
+        if let rect = rectBesideSessionBoard(visibleFrameOfScreen) {
+            return RectResult(rect, subAction: .rightThreeFourths)
+        }
         var rect = visibleFrameOfScreen
         rect.size.height = floor(visibleFrameOfScreen.height * 7 / 8.0)
         return RectResult(rect, subAction: .bottomThreeFourths)
     }
+
+    /// Personal patch: when the SessionBoard panel sits on the left side of this
+    /// screen, fill the space to its right so the board stays visible.
+    private func rectBesideSessionBoard(_ visibleFrameOfScreen: CGRect) -> CGRect? {
+        guard let board = sessionBoardFrame(on: visibleFrameOfScreen) else { return nil }
+        var rect = visibleFrameOfScreen
+        rect.origin.x = board.maxX + sessionBoardGap
+        rect.size.width = visibleFrameOfScreen.maxX - rect.origin.x
+        return rect.width > visibleFrameOfScreen.width / 2 ? rect : nil
+    }
+}
+
+/// Personal patch: space kept between the SessionBoard panel and a window placed beside it.
+let sessionBoardGap: CGFloat = 8
+
+/// Personal patch: frame of the SessionBoard panel when it sits on the left side of
+/// this screen, in the same coordinates as `visibleFrameOfScreen`.
+func sessionBoardFrame(on visibleFrameOfScreen: CGRect) -> CGRect? {
+    guard let app = AccessibilityElement("com.wecouldbe.session-board"),
+          app.isHidden != true else { return nil }
+    return app.windowElements?
+        .filter({ $0.isMinimized != true })
+        .map({ $0.frame.screenFlipped })
+        .first(where: { !$0.isNull
+            && visibleFrameOfScreen.contains(CGPoint(x: $0.midX, y: $0.midY))
+            && $0.midX < visibleFrameOfScreen.midX })
 }
