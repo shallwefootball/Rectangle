@@ -5,16 +5,22 @@ The patches live on the `seven-eighths` branch on top of the official `v1.100` t
 
 ## What it changes
 
-Both changes keep a small panel app, SessionBoard (`com.wecouldbe.session-board`, pinned to the
-left edge of the screen), visible. They reuse two actions that were otherwise unbound.
+Both changes keep a small panel app pinned to the left edge of the screen visible — Nook
+(`com.wecouldbe.nook`) here. They reuse two actions that were otherwise unbound.
 
-| Action | Shortcut | SessionBoard on the left of this screen | Otherwise |
+The bundle id is read from `UserDefaults`, so it can be pointed at another app without rebuilding:
+
+```sh
+defaults write com.knollsoft.Rectangle sidePanelBundleId -string "com.example.app"
+```
+
+| Action | Shortcut | Panel on the left of this screen | Otherwise |
 |---|---|---|---|
-| `lastThreeFourths` | ⌃⌥K | from the board's right edge (+8pt) to the screen edge, full height | right 7/8 |
-| `firstThreeFourths` | ⌃⌥M | two thirds of the screen width, starting at the board's right edge (+8pt), full height | left 2/3 |
+| `lastThreeFourths` | ⌃⌥K | from the panel's right edge (+8pt) to the screen edge, full height | right 7/8 |
+| `firstThreeFourths` | ⌃⌥M | two thirds of the screen width, starting at the panel's right edge (+8pt), full height | left 2/3 |
 
-The board frame is read through the accessibility API when the shortcut is pressed, so it follows
-the board's width and whichever display it is on.
+The panel frame is read through the accessibility API when the shortcut is pressed, so it follows
+the panel's width and whichever display it is on.
 
 Code:
 - `Rectangle/WindowCalculation/LastThreeFourthsCalculation.swift`: K, plus the shared `sessionBoardFrame()`
