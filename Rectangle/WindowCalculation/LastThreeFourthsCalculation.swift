@@ -52,10 +52,17 @@ class LastThreeFourthsCalculation: WindowCalculation, OrientationAware {
 /// Personal patch: space kept between the SessionBoard panel and a window placed beside it.
 let sessionBoardGap: CGFloat = 8
 
-/// Personal patch: frame of the SessionBoard panel when it sits on the left side of
+/// Personal patch: bundle id of the side panel K and M make room for.
+/// Override without rebuilding:
+///   defaults write com.knollsoft.Rectangle sidePanelBundleId -string "com.example.app"
+var sidePanelBundleId: String {
+    UserDefaults.standard.string(forKey: "sidePanelBundleId") ?? "com.wecouldbe.nook"
+}
+
+/// Personal patch: frame of the side panel when it sits on the left side of
 /// this screen, in the same coordinates as `visibleFrameOfScreen`.
 func sessionBoardFrame(on visibleFrameOfScreen: CGRect) -> CGRect? {
-    guard let app = AccessibilityElement("com.wecouldbe.session-board"),
+    guard let app = AccessibilityElement(sidePanelBundleId),
           app.isHidden != true else { return nil }
     return app.windowElements?
         .filter({ $0.isMinimized != true })
