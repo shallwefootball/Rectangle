@@ -19,9 +19,11 @@ class TopVerticalTwoThirdsCalculation: WindowCalculation {
         return calculateTopTwoThirds(visibleFrameOfScreen)
     }
     
+    /// Personal patch: take 5/6 of the height instead of 2/3, so a window fills
+    /// the screen except for a strip left free at the bottom.
     func calculateTopTwoThirds(_ visibleFrameOfScreen: CGRect) -> RectResult {
         var rect = visibleFrameOfScreen
-        rect.size.height = floor(visibleFrameOfScreen.height * 2 / 3.0)
+        rect.size.height = floor(visibleFrameOfScreen.height * 5 / 6.0)
         rect.origin.y = visibleFrameOfScreen.origin.y + visibleFrameOfScreen.height - rect.height
         return RectResult(rect, subAction: .topTwoThirds)
     }
